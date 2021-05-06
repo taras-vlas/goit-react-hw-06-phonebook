@@ -1,32 +1,44 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import styles from "./ContactForm.module.css";
 
+import phonebookActions from '../../redux/phonebook/phonebook-actions'
 
 class ContactForm extends Component {
   state = {
-    name: "",
-    number: "",
+    name: '',
+    number: ''
   };
 
-  handleChange = (event) => {
-    const { name, value } = event.target;
+  handleChange = ({ target }) => {
+    const { name, value } = target;
+
     this.setState({
       [name]: value,
-    });
+    })
+
   };
 
   handleSubmit = (event) => {
     event.preventDefault();
+    const { name, number } = this.state;
 
-    this.props.onAddContact({ ...this.state });
+    if (name && number) {
+      this.props.onCreateContact(this.state.name, this.state.number);
+      return this.setState({ name: '', number: '' });  // alert (...) is already in contacts`);
+    }
 
-    this.setState({ name: "", number: "" });
+    return null;
   };
+
+
   render() {
+
     return (
-        <form className={styles.Form} onSubmit={this.handleSubmit}>
-          <label className={styles.Label}>
+      <form className={styles.Form} onSubmit={this.handleSubmit}>
+        
+<label className={styles.Label}>
             Name
             <input
                 className={styles.Input}
@@ -55,18 +67,19 @@ class ContactForm extends Component {
             <button className={styles.Button} type="submit">
               Add contact
             </button>
-        </form>
-    );
+      </form>
+    )
   }
 }
 
+const mapDispatchToProps = {
+  onCreateContact: phonebookActions.addContact,
+};
+
 ContactForm.propTypes = {
-  onAddContact: PropTypes.func.isRequired,
+  onCreateContact: PropTypes.func.isRequired,
   name: PropTypes.string.isRequired,
   number: PropTypes.string.isRequired,
 };
 
-export default ContactForm;
-
-
-
+export default connect(null, mapDispatchToProps)  (ContactForm);

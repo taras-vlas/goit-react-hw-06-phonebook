@@ -1,33 +1,62 @@
-import React from "react";
-import PropTypes from 'prop-types';
-import styles from "./ContactList.module.css";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-const ListContact = ({ contacts, onDeleteContact }) => (
-  <ul className={styles.List}>
-    {contacts.map((contact) => (
-      <li className = {styles.List_item} key={contact.id}>
-        {"• " + contact.name + ":  " + contact.number}
-        {
-          <button
-            className={styles.List_button}
-            type="button"
-            name="delete"
-            onClick={() => onDeleteContact(contact.id)}
-          >
-            Delete
-          </button>
-        }
-      </li>
-    ))}
-  </ul>
-);
+import styled from 'styled-components'
 
-ListContact.propTypes = {
-  onDeleteContact: PropTypes.func.isRequired,
-  contacts: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-  })),
+import ContactListItem from './ContactListItem';
+import phonebookActions from '../../redux/phonebook/phonebook-actions';
+
+class ContactList extends Component {
+
+  componentDidUpdate(prevProp, prevState) {
+    const prevContacts = prevProp.contacts;
+    const currentContacts = this.props.contacts;
+
+    if (prevContacts !== currentContacts) {
+      localStorage.setItem('contacts', JSON.stringify(currentContacts));
+    }
+  };
+
+  render() {
+    const { contacts, onDeleteItem } = this.props;
+
+    if (contacts.length < 1) {
+      return null;
+    }
+
+    return (
+      <List>
+        {contacts.map(({ id, name, number }) => {
+          return (
+            <ContactListItem
+              key={id}
+              name={name}
+              number={number}
+              onDelete={() => onDeleteItem(id)}
+            />
+          );
+        })}
+      </List>
+    )
+  }
 }
-export default ListContact;
+
+const List = styled.ul`
+  width: 500px;
+`;
+
+
+const mapStateToProps = state => {
+  const { contacts, filter } = state.phonebook;
+  const visibleContacts = contacts.filter(contact => contact.name.toLowerCase().includes(filter.toLowerCase()));
+
+  return {
+    contacts: visibleContacts,
+  };
+};
+
+const mapDispatchToProps = {
+  onDeleteItem: phonebookActions.deleteContact,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactList);

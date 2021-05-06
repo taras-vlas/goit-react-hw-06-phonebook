@@ -1,12 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
-import 'modern-normalize/modern-normalize.css'; // npm install modern-normalize
+import { Provider } from 'react-redux';
+
 import './styles.css';
+import App from './App';
+import store from './redux/store';
 
 ReactDOM.render(
-  <React.StrictMode>
+  <Provider store={store}>
     <App />
-  </React.StrictMode>,
-  document.getElementById('root'),
+  </Provider>
+  , document.getElementById('root')
 );

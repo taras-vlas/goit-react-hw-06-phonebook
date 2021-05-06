@@ -1,5 +1,8 @@
-import React from "react";
+import React from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import phonebookActions from '../../redux/phonebook/phonebook-actions';
+
     import { createUseStyles } from 'react-jss';
 
     const useStyles = createUseStyles({
@@ -28,23 +31,40 @@ import PropTypes from 'prop-types';
             }
         });
 
-function Filter({ value, onChangeFilter }) {
-    const classes = useStyles();
-  return (
-    <div className = {classes.Label}>
-      Find contacts by name
-      <input className = {classes.Input}
-        type="text"
-        value={value}
-        onChange={(event) => onChangeFilter(event.target.value)}
-      />
-    </div>
-  );
+function Filter({ contacts,  value, onChangeFilter }) {
+  const classes = useStyles();
+
+  if (contacts.length > 1) {
+    return (
+      <div className = {classes.Label}>
+        Find contacts by name
+        <input className={classes.Input}
+          type="text"
+          name="filter"
+          value={value}
+          onChange={event => onChangeFilter(event.target.value)} />
+      </div>
+    )
+  }
+
+  return null;
 }
 
+const mapStateToProps = state => {
+  return {
+    contacts: state.phonebook.contacts,
+    value: state.phonebook.filter,
+  };
+};
+
+const mapDispatchToProps = {
+  onChangeFilter: phonebookActions.changeFilter,
+};
+
 Filter.propTypes = {
+  contacts: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   onchangeFilter: PropTypes.func.isRequired,
 };
 
-export default Filter;
+export default connect(mapStateToProps, mapDispatchToProps)  (Filter);
